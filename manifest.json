@@ -9,12 +9,12 @@
   "description": "Student/Worker transaction manager and dashboard",
   "icons": [
     {
-      "src": "glogo.jpg",
+      "src": "glogo.png",
       "type": "image/png",
       "sizes": "192x192"
     },
     {
-      "src": "glogo.jpg",
+      "src": "glogo.png",
       "type": "image/png",
       "sizes": "512x512"
     }
