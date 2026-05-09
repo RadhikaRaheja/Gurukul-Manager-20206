@@ -3,115 +3,1534 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Gurukul Manager</title>
-  <link rel="stylesheet" href="styles.css" />
-  <link rel="icon" href="data:,">
-  <link rel="manifest" href="manifest.json" />
+  <title>Gurukul Manager 2026</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;500;600;700&family=Nunito:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+  <link rel="manifest" href="manifest.json" />
+  <link rel="icon" href="gurukul-logo.jpg">
+  <style>
+    :root {
+      --primary: #1a6b3c;
+      --primary-light: #2e9e5b;
+      --primary-dark: #0f4526;
+      --accent: #f5a623;
+      --accent-dark: #c07d0a;
+      --bg: #f0f7f3;
+      --surface: #ffffff;
+      --surface2: #e8f4ed;
+      --text: #1a2e22;
+      --text-muted: #5a7a65;
+      --border: #c3dece;
+      --danger: #e53935;
+      --danger-bg: #fdecea;
+      --success: #2e9e5b;
+      --success-bg: #e8f4ed;
+      --warning: #f5a623;
+      --warning-bg: #fff8ed;
+      --shadow: 0 2px 12px rgba(26,107,60,0.10);
+      --shadow-lg: 0 8px 32px rgba(26,107,60,0.15);
+      --radius: 12px;
+      --radius-sm: 8px;
+      --header-h: 64px;
+      --nav-w: 220px;
+    }
+    [data-theme="dark"] {
+      --primary: #2e9e5b;
+      --primary-light: #3fbe70;
+      --primary-dark: #1a6b3c;
+      --accent: #f5a623;
+      --bg: #0d1f14;
+      --surface: #162318;
+      --surface2: #1e3527;
+      --text: #e8f4ed;
+      --text-muted: #8ab89a;
+      --border: #2a4a35;
+      --danger-bg: #3a1515;
+      --success-bg: #0f2d1a;
+      --warning-bg: #2d2000;
+      --shadow: 0 2px 12px rgba(0,0,0,0.4);
+      --shadow-lg: 0 8px 32px rgba(0,0,0,0.5);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Nunito', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      transition: background 0.3s, color 0.3s;
+    }
+    /* ── HEADER ── */
+    #header {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      height: var(--header-h);
+      background: var(--primary);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 20px;
+      box-shadow: 0 2px 16px rgba(0,0,0,0.2);
+    }
+    #header .brand {
+      display: flex; align-items: center; gap: 10px;
+      font-family: 'Baloo 2', cursive;
+      font-size: 1.4rem; font-weight: 700; color: #fff;
+    }
+    #header .brand img { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; }
+    #header .brand .logo-fallback {
+      width: 36px; height: 36px; border-radius: 50%;
+      background: var(--accent); color: #fff;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.1rem; font-weight: 700;
+    }
+    .header-actions { display: flex; align-items: center; gap: 12px; }
+    .header-actions button {
+      background: rgba(255,255,255,0.15); border: none;
+      color: #fff; width: 36px; height: 36px; border-radius: 50%;
+      cursor: pointer; font-size: 1rem; transition: background 0.2s;
+    }
+    .header-actions button:hover { background: rgba(255,255,255,0.3); }
+    /* ── SIDEBAR ── */
+    #sidebar {
+      position: fixed; top: var(--header-h); left: 0; bottom: 0; z-index: 90;
+      width: var(--nav-w);
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      display: flex; flex-direction: column;
+      transition: transform 0.3s;
+      overflow-y: auto;
+    }
+    .nav-item {
+      display: flex; align-items: center; gap: 12px;
+      padding: 13px 20px; cursor: pointer;
+      color: var(--text-muted); font-weight: 600; font-size: 0.92rem;
+      border-left: 3px solid transparent;
+      transition: all 0.2s;
+    }
+    .nav-item:hover { color: var(--primary); background: var(--surface2); }
+    .nav-item.active {
+      color: var(--primary); background: var(--surface2);
+      border-left-color: var(--primary);
+    }
+    .nav-item i { font-size: 1.1rem; width: 22px; text-align: center; }
+    .nav-section {
+      padding: 16px 20px 6px;
+      font-size: 0.7rem; font-weight: 700; letter-spacing: 1px;
+      color: var(--text-muted); text-transform: uppercase;
+    }
+    /* ── MAIN ── */
+    #main {
+      margin-left: var(--nav-w);
+      margin-top: var(--header-h);
+      padding: 24px;
+      min-height: calc(100vh - var(--header-h));
+    }
+    .page { display: none; }
+    .page.active { display: block; }
+    /* ── CARDS ── */
+    .card {
+      background: var(--surface);
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow);
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+    .card-title {
+      font-family: 'Baloo 2', cursive;
+      font-size: 1.1rem; font-weight: 600; color: var(--primary);
+      margin-bottom: 16px; display: flex; align-items: center; gap: 8px;
+    }
+    /* ── STAT CARDS ── */
+    .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px,1fr)); gap: 14px; margin-bottom: 20px; }
+    .stat-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 16px 18px;
+      box-shadow: var(--shadow);
+    }
+    .stat-card .stat-label { font-size: 0.78rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+    .stat-card .stat-value { font-family: 'Baloo 2', cursive; font-size: 1.8rem; font-weight: 700; color: var(--primary); line-height: 1; }
+    .stat-card .stat-sub { font-size: 0.75rem; color: var(--text-muted); margin-top: 4px; }
+    .stat-card.danger .stat-value { color: var(--danger); }
+    .stat-card.warning .stat-value { color: var(--warning); }
+    /* ── BUTTONS ── */
+    .btn {
+      display: inline-flex; align-items: center; gap: 7px;
+      padding: 9px 18px; border-radius: var(--radius-sm);
+      border: none; cursor: pointer; font-family: 'Nunito', sans-serif;
+      font-weight: 700; font-size: 0.88rem; transition: all 0.2s;
+    }
+    .btn-primary { background: var(--primary); color: #fff; }
+    .btn-primary:hover { background: var(--primary-light); }
+    .btn-accent { background: var(--accent); color: #fff; }
+    .btn-accent:hover { background: var(--accent-dark); }
+    .btn-danger { background: var(--danger); color: #fff; }
+    .btn-danger:hover { opacity: 0.85; }
+    .btn-ghost { background: var(--surface2); color: var(--primary); border: 1px solid var(--border); }
+    .btn-ghost:hover { background: var(--border); }
+    .btn-whatsapp { background: #25d366; color: #fff; }
+    .btn-whatsapp:hover { background: #1da851; }
+    .btn-sm { padding: 5px 11px; font-size: 0.8rem; }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    /* ── FORMS ── */
+    .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px,1fr)); gap: 14px; }
+    .form-group { display: flex; flex-direction: column; gap: 5px; }
+    .form-group label { font-size: 0.8rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.4px; }
+    .form-group input, .form-group select, .form-group textarea {
+      padding: 9px 12px; border-radius: var(--radius-sm);
+      border: 1.5px solid var(--border);
+      background: var(--bg); color: var(--text);
+      font-family: 'Nunito', sans-serif; font-size: 0.9rem;
+      transition: border-color 0.2s;
+      outline: none;
+    }
+    .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(26,107,60,0.1);
+    }
+    .form-actions { display: flex; gap: 10px; margin-top: 16px; flex-wrap: wrap; }
+    /* ── TABLE ── */
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+    th {
+      background: var(--primary); color: #fff;
+      padding: 10px 12px; text-align: left;
+      font-weight: 700; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.5px;
+    }
+    th:first-child { border-radius: 8px 0 0 0; }
+    th:last-child { border-radius: 0 8px 0 0; }
+    td { padding: 10px 12px; border-bottom: 1px solid var(--border); color: var(--text); }
+    tr:hover td { background: var(--surface2); }
+    .badge {
+      display: inline-block; padding: 3px 9px; border-radius: 20px;
+      font-size: 0.72rem; font-weight: 700;
+    }
+    .badge-green { background: var(--success-bg); color: var(--success); }
+    .badge-red { background: var(--danger-bg); color: var(--danger); }
+    .badge-amber { background: var(--warning-bg); color: var(--accent-dark); }
+    /* ── ENTRY TAB ── */
+    .entry-header-bar {
+      display: grid; grid-template-columns: 2fr 1fr 1fr 1fr;
+      background: var(--primary); color: #fff;
+      padding: 10px 14px; border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+      font-size: 0.78rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.4px;
+    }
+    .entry-row {
+      display: grid; grid-template-columns: 2fr 1fr 1fr 1fr;
+      align-items: center; gap: 8px;
+      padding: 8px 14px; border-bottom: 1px solid var(--border);
+      background: var(--surface); transition: background 0.15s;
+    }
+    .entry-row:hover { background: var(--surface2); }
+    .entry-row:last-child { border-radius: 0 0 var(--radius-sm) var(--radius-sm); border-bottom: none; }
+    .entry-row input[type=number] {
+      width: 100%; padding: 7px 10px; border-radius: 6px;
+      border: 1.5px solid var(--border); background: var(--bg);
+      color: var(--text); font-family: 'Nunito', sans-serif; font-size: 0.88rem;
+      outline: none; transition: border-color 0.2s;
+    }
+    .entry-row input[type=number]:focus { border-color: var(--primary); }
+    .entry-row input.debit:focus { border-color: var(--danger); }
+    .entry-row input.credit:focus { border-color: var(--success); }
+    .balance-pos { color: var(--success); font-weight: 700; }
+    .balance-neg { color: var(--danger); font-weight: 700; }
+    .student-name { font-weight: 600; font-size: 0.9rem; }
+    .student-class { font-size: 0.75rem; color: var(--text-muted); }
+    /* ── MODAL ── */
+    .modal-overlay {
+      position: fixed; inset: 0; z-index: 200;
+      background: rgba(0,0,0,0.5);
+      display: none; align-items: center; justify-content: center;
+      padding: 20px;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal {
+      background: var(--surface); border-radius: var(--radius);
+      box-shadow: var(--shadow-lg); padding: 24px;
+      width: 100%; max-width: 560px;
+      max-height: 90vh; overflow-y: auto;
+      animation: slideUp 0.25s ease;
+    }
+    @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+    .modal-title {
+      font-family: 'Baloo 2', cursive; font-size: 1.2rem;
+      font-weight: 700; color: var(--primary); margin-bottom: 20px;
+      display: flex; align-items: center; gap: 8px;
+    }
+    /* ── ALERTS ── */
+    .alert {
+      padding: 12px 16px; border-radius: var(--radius-sm);
+      font-weight: 600; font-size: 0.88rem; margin-bottom: 14px;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .alert-success { background: var(--success-bg); color: var(--success); border: 1px solid #b2dfcc; }
+    .alert-danger { background: var(--danger-bg); color: var(--danger); border: 1px solid #f5bcb9; }
+    .alert-warning { background: var(--warning-bg); color: var(--accent-dark); border: 1px solid #ffd999; }
+    /* ── SEARCH ── */
+    .search-bar {
+      display: flex; align-items: center; gap: 10px;
+      background: var(--bg); border: 1.5px solid var(--border);
+      border-radius: var(--radius-sm); padding: 8px 14px;
+      flex: 1;
+    }
+    .search-bar input { border: none; background: transparent; color: var(--text); font-size: 0.9rem; outline: none; font-family: 'Nunito',sans-serif; width: 100%; }
+    .search-bar i { color: var(--text-muted); }
+    /* ── REMINDER LIST ── */
+    .reminder-row {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 12px 16px; border-bottom: 1px solid var(--border);
+      gap: 12px;
+    }
+    .reminder-row:last-child { border-bottom: none; }
+    .reminder-info { flex: 1; min-width: 0; }
+    .reminder-name { font-weight: 700; font-size: 0.92rem; }
+    .reminder-meta { font-size: 0.78rem; color: var(--text-muted); }
+    .reminder-amount { font-family: 'Baloo 2', cursive; font-size: 1.1rem; font-weight: 700; color: var(--danger); white-space: nowrap; }
+    /* ── ATTENDANCE ── */
+    .att-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px,1fr)); gap: 10px; }
+    .att-card {
+      background: var(--surface); border: 1.5px solid var(--border);
+      border-radius: var(--radius-sm); padding: 12px;
+      display: flex; flex-direction: column; align-items: center; gap: 8px;
+      cursor: pointer; transition: all 0.2s; text-align: center;
+      user-select: none;
+    }
+    .att-card.present { border-color: var(--success); background: var(--success-bg); }
+    .att-card.absent { border-color: var(--danger); background: var(--danger-bg); }
+    .att-card .att-name { font-weight: 700; font-size: 0.85rem; }
+    .att-card .att-class { font-size: 0.72rem; color: var(--text-muted); }
+    .att-status { font-size: 0.75rem; font-weight: 700; }
+    .att-card.present .att-status { color: var(--success); }
+    .att-card.absent .att-status { color: var(--danger); }
+    /* ── TOAST ── */
+    #toast {
+      position: fixed; bottom: 24px; right: 24px; z-index: 999;
+      background: var(--primary); color: #fff;
+      padding: 12px 20px; border-radius: var(--radius-sm);
+      font-weight: 600; font-size: 0.9rem;
+      box-shadow: var(--shadow-lg);
+      transform: translateY(80px); opacity: 0;
+      transition: all 0.3s; pointer-events: none;
+      display: flex; align-items: center; gap: 8px;
+    }
+    #toast.show { transform: translateY(0); opacity: 1; }
+    #toast.error { background: var(--danger); }
+    /* ── FILTER ROW ── */
+    .filter-row { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-bottom: 18px; }
+    /* ── AVATAR ── */
+    .avatar {
+      width: 36px; height: 36px; border-radius: 50%;
+      background: var(--primary); color: #fff;
+      display: inline-flex; align-items: center; justify-content: center;
+      font-weight: 700; font-size: 0.85rem; flex-shrink: 0;
+    }
+    /* ── MOBILE ── */
+    .hamburger {
+      display: none; background: none; border: none;
+      color: #fff; font-size: 1.4rem; cursor: pointer; padding: 4px;
+    }
+    .sidebar-overlay {
+      display: none; position: fixed; inset: 0; z-index: 89;
+      background: rgba(0,0,0,0.4);
+    }
+    @media (max-width: 768px) {
+      .hamburger { display: block; }
+      #sidebar { transform: translateX(-100%); }
+      #sidebar.open { transform: translateX(0); }
+      .sidebar-overlay.open { display: block; }
+      #main { margin-left: 0; padding: 16px; }
+      .entry-header-bar, .entry-row { grid-template-columns: 1.5fr 1fr 1fr; }
+      .entry-header-bar .balance-col, .entry-row .balance-col { display: none; }
+      .stats-grid { grid-template-columns: 1fr 1fr; }
+      .form-grid { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 480px) {
+      .stats-grid { grid-template-columns: 1fr; }
+    }
+    /* ── PAGE TITLE ── */
+    .page-title {
+      font-family: 'Baloo 2', cursive;
+      font-size: 1.6rem; font-weight: 700; color: var(--primary);
+      margin-bottom: 20px; display: flex; align-items: center; gap: 10px;
+    }
+    .page-title i { font-size: 1.3rem; }
+    /* FEE STRUCTURE */
+    .fee-badge {
+      display: inline-block; background: var(--primary); color: #fff;
+      padding: 3px 10px; border-radius: 20px; font-size: 0.78rem; font-weight: 700;
+    }
+    /* empty state */
+    .empty-state {
+      text-align: center; padding: 48px 20px; color: var(--text-muted);
+    }
+    .empty-state i { font-size: 3rem; margin-bottom: 12px; display: block; }
+    .empty-state p { font-size: 0.95rem; }
+  </style>
 </head>
-<body class="dark-mode">
+<body>
 
-  <!-- 🔝 Fixed Header -->
-  <header id="main-header">
-    <h2>Gurukul Manager 2026</h2>
-    <nav class="nav-tabs">
-      <button class="tab-button active" onclick="switchTab('entry')" id="entryTab">➕ Entry</button>
-      <button class="tab-button" onclick="switchTab('dashboard')" id="dashboardTab">📊 Dashboard</button>
-      <button class="tab-button" onclick="switchTab('snapshot')" id="snapshotTab">📆 Snapshot</button>
-    </nav>
-    <div class="mode-toggle">
-      <label class="switch">
-        <input type="checkbox" id="modeSwitch" />
-        <span class="slider"></span>
-      </label>
+<!-- TOAST -->
+<div id="toast"><i class="fa fa-check-circle"></i><span id="toast-msg">Saved!</span></div>
+
+<!-- SIDEBAR OVERLAY (mobile) -->
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+
+<!-- HEADER -->
+<header id="header">
+  <div style="display:flex;align-items:center;gap:12px;">
+    <button class="hamburger" id="hamburgerBtn" onclick="toggleSidebar()"><i class="fa fa-bars"></i></button>
+    <div class="brand">
+      <div class="logo-fallback">G</div>
+      <span>Gurukul Manager</span>
     </div>
-  </header>
+  </div>
+  <div class="header-actions">
+    <button onclick="toggleTheme()" id="themeBtn" title="Toggle theme"><i class="fa fa-moon" id="themeIcon"></i></button>
+    <button onclick="refreshData()" title="Refresh data"><i class="fa fa-sync" id="refreshIcon"></i></button>
+  </div>
+</header>
 
-  <!-- 📥 Main -->
-  <main class="main-content">
+<!-- SIDEBAR -->
+<nav id="sidebar">
+  <div class="nav-section">Main</div>
+  <div class="nav-item active" data-page="entry" onclick="showPage('entry',this)"><i class="fa fa-plus-circle"></i> Daily Entry</div>
+  <div class="nav-item" data-page="dashboard" onclick="showPage('dashboard',this)"><i class="fa fa-chart-bar"></i> Dashboard</div>
+  <div class="nav-item" data-page="snapshot" onclick="showPage('snapshot',this)"><i class="fa fa-calendar-alt"></i> Snapshot</div>
+  <div class="nav-section">Students</div>
+  <div class="nav-item" data-page="students" onclick="showPage('students',this)"><i class="fa fa-user-graduate"></i> Student Records</div>
+  <div class="nav-item" data-page="fees" onclick="showPage('fees',this)"><i class="fa fa-rupee-sign"></i> Fee Structure</div>
+  <div class="nav-section">Communicate</div>
+  <div class="nav-item" data-page="reminders" onclick="showPage('reminders',this)"><i class="fab fa-whatsapp"></i> WA Reminders</div>
+  <div class="nav-section">Other</div>
+  <div class="nav-item" data-page="attendance" onclick="showPage('attendance',this)"><i class="fa fa-clipboard-check"></i> Attendance</div>
+  <div class="nav-item" data-page="settings" onclick="showPage('settings',this)"><i class="fa fa-cog"></i> Settings</div>
+</nav>
 
-    <!-- Entry Tab -->
-    <section id="entry" class="tab active">
-      <h2>Transaction Entry</h2>
-      <div class="date-container">
-        <label for="entryDate">Date:</label>
-        <input type="date" id="entryDate" />
+<!-- MAIN CONTENT -->
+<main id="main">
+
+  <!-- ═══════════════ ENTRY PAGE ═══════════════ -->
+  <div class="page active" id="page-entry">
+    <div class="page-title"><i class="fa fa-plus-circle"></i> Daily Entry</div>
+    <div class="stats-grid" id="entryStats">
+      <div class="stat-card"><div class="stat-label">Total Students</div><div class="stat-value" id="statTotal">—</div></div>
+      <div class="stat-card warning"><div class="stat-label">Due Today</div><div class="stat-value" id="statDue">—</div></div>
+      <div class="stat-card"><div class="stat-label">Total Credits</div><div class="stat-value" id="statCredits">—</div></div>
+      <div class="stat-card danger"><div class="stat-label">Total Dues</div><div class="stat-value" id="statDues">—</div></div>
+    </div>
+    <div class="card">
+      <div style="display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin-bottom:16px;">
+        <div class="form-group" style="flex:0 0 auto;">
+          <label>Date</label>
+          <input type="date" id="entryDate" style="width:160px;" />
+        </div>
+        <div class="search-bar" style="flex:1;min-width:180px;">
+          <i class="fa fa-search"></i>
+          <input type="text" id="entrySearch" placeholder="Search student..." oninput="filterEntryRows()" />
+        </div>
+        <div class="form-group" style="flex:0 0 auto;">
+          <label>Filter Class</label>
+          <select id="entryClassFilter" onchange="filterEntryRows()" style="width:120px;">
+            <option value="">All Classes</option>
+          </select>
+        </div>
       </div>
-      <div class="entry-header-row">
-        <div>Student</div>
-        <div>Debit (Rs.)</div>
-        <div>Credit (Rs.)</div>
-        <div>Balance</div>
+      <div class="entry-header-bar">
+        <div>Student</div><div>Debit (₹)</div><div>Credit (₹)</div><div class="balance-col">Balance</div>
       </div>
       <div id="entryList"></div>
-      <div id="entryStatus" class="status-message"></div>
-      <button id="saveAllButton" class="button-primary">💾 Save All Entries</button>
-      <div id="entryTotal" class="entry-footer-summary"></div>
-    </section>
-
-    <!-- Dashboard Tab -->
-    <section id="dashboard" class="tab">
-      <h2>Student Dashboard</h2>
-      <div class="filter-box">
-        <label for="dashboardStudent">Student:</label>
-        <select id="dashboardStudent"></select>
-        <label for="fromDate">From:</label>
-        <input type="date" id="fromDate" />
-        <label for="toDate">To:</label>
-        <input type="date" id="toDate" />
-        <button class="button-primary" onclick="loadDashboard()">🔍 Load</button>
+      <div id="entryStatus" style="margin:12px 0;"></div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:4px;">
+        <button class="btn btn-primary" id="saveAllButton" onclick="saveAllEntries()"><i class="fa fa-save"></i> Save All Entries</button>
+        <button class="btn btn-ghost" onclick="clearEntryInputs()"><i class="fa fa-eraser"></i> Clear All</button>
       </div>
-      <div id="dashboardSummary" class="summary-box"></div>
-      <table id="transactionTable">
-        <thead>
-          <tr>
-            <th>Date</th>
-            <th>Debit (Rs.)</th>
-            <th>Credit (Rs.)</th>
-          </tr>
-        </thead>
-        <tbody></tbody>
-      </table>
-      <div id="tableBalanceTotal" class="summary-box"></div>
-    </section>
+      <div id="entryTotal" style="margin-top:14px;font-weight:700;color:var(--primary);font-size:0.95rem;"></div>
+    </div>
+  </div>
 
-    <!-- Snapshot Tab -->
-    <section id="snapshot" class="tab">
-      <h2>Daily Snapshot</h2>
-      <div class="filter-box">
-        <label for="snapFrom">From:</label>
-        <input type="date" id="snapFrom" />
-        <label for="snapTo">To:</label>
-        <input type="date" id="snapTo" />
-        <label for="balanceFilter">Balance:</label>
-        <select id="balanceFilter">
-          <option value="all">All</option>
-          <option value="credit">In Credit</option>
-          <option value="debit">In Debit</option>
-        </select>
-        <button class="button-primary" onclick="loadSnapshot()">📆 Load</button>
+  <!-- ═══════════════ DASHBOARD PAGE ═══════════════ -->
+  <div class="page" id="page-dashboard">
+    <div class="page-title"><i class="fa fa-chart-bar"></i> Student Dashboard</div>
+    <div class="card">
+      <div class="filter-row">
+        <div class="form-group"><label>Student</label>
+          <select id="dashboardStudent" style="width:220px;"></select></div>
+        <div class="form-group"><label>From</label><input type="date" id="fromDate" /></div>
+        <div class="form-group"><label>To</label><input type="date" id="toDate" /></div>
+        <button class="btn btn-primary" onclick="loadDashboard()" style="align-self:flex-end;"><i class="fa fa-search"></i> Load</button>
+        <button class="btn btn-ghost" onclick="clearDashboard()" style="align-self:flex-end;"><i class="fa fa-times"></i> Clear</button>
       </div>
-      <table id="snapshotTable">
-        <thead>
-          <tr>
-            <th>Date</th>
-            <th>Student</th>
-            <th>Class</th>
-            <th>Debit (Rs.)</th>
-            <th>Credit (Rs.)</th>
-          </tr>
-        </thead>
-        <tbody></tbody>
-      </table>
-    </section>
-  </main>
+      <div id="dashboardSummary"></div>
+    </div>
+    <div class="card" id="dashboardTableCard" style="display:none;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px;">
+        <div class="card-title" style="margin:0;"><i class="fa fa-list"></i> Transactions</div>
+        <div style="display:flex;gap:8px;">
+          <button class="btn btn-ghost btn-sm" onclick="exportDashboardPDF()"><i class="fa fa-file-pdf"></i> PDF</button>
+          <button class="btn btn-whatsapp btn-sm" onclick="shareViaWhatsApp()"><i class="fab fa-whatsapp"></i> Share</button>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table id="transactionTable">
+          <thead><tr><th>Date</th><th>Debit (₹)</th><th>Credit (₹)</th><th>Balance</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <div id="tableBalanceTotal" style="margin-top:14px;"></div>
+    </div>
+  </div>
 
-  <!-- Footer -->
-  <footer>
-    <span>© 2026 Designed by Radhika</span>
-  </footer>
+  <!-- ═══════════════ SNAPSHOT PAGE ═══════════════ -->
+  <div class="page" id="page-snapshot">
+    <div class="page-title"><i class="fa fa-calendar-alt"></i> Daily Snapshot</div>
+    <div class="card">
+      <div class="filter-row">
+        <div class="form-group"><label>From</label><input type="date" id="snapFrom" /></div>
+        <div class="form-group"><label>To</label><input type="date" id="snapTo" /></div>
+        <div class="form-group"><label>Balance Filter</label>
+          <select id="balanceFilter">
+            <option value="all">All</option>
+            <option value="credit">In Credit</option>
+            <option value="debit">In Debit</option>
+          </select></div>
+        <div class="form-group"><label>Class</label>
+          <select id="snapClassFilter"><option value="">All Classes</option></select></div>
+        <button class="btn btn-primary" onclick="loadSnapshot()" style="align-self:flex-end;"><i class="fa fa-calendar-check"></i> Load</button>
+        <button class="btn btn-ghost btn-sm" onclick="exportSnapshotPDF()" style="align-self:flex-end;"><i class="fa fa-file-pdf"></i> Export</button>
+      </div>
+      <div id="snapStats" style="margin-bottom:14px;"></div>
+      <div class="table-wrap">
+        <table id="snapshotTable">
+          <thead><tr><th>Date</th><th>Student</th><th>Class</th><th>Debit (₹)</th><th>Credit (₹)</th><th>Net</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
 
-  <script src="app.js"></script>
+  <!-- ═══════════════ STUDENTS PAGE ═══════════════ -->
+  <div class="page" id="page-students">
+    <div class="page-title"><i class="fa fa-user-graduate"></i> Student Records</div>
+    <div class="card">
+      <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:16px;">
+        <div class="search-bar" style="flex:1;min-width:180px;">
+          <i class="fa fa-search"></i>
+          <input type="text" id="studentSearch" placeholder="Search by name, class, guardian..." oninput="renderStudentsTable()" />
+        </div>
+        <div class="form-group"><label>Class</label>
+          <select id="studentClassFilter" onchange="renderStudentsTable()" style="width:130px;">
+            <option value="">All Classes</option>
+          </select></div>
+        <button class="btn btn-primary" onclick="openStudentModal()"><i class="fa fa-user-plus"></i> Add Student</button>
+      </div>
+      <div class="table-wrap">
+        <table id="studentsTable">
+          <thead><tr><th>#</th><th>Name</th><th>Class</th><th>Guardian</th><th>Mobile</th><th>Alternate</th><th>Address</th><th>Balance</th><th>Actions</th></tr></thead>
+          <tbody id="studentsTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════ FEE STRUCTURE PAGE ═══════════════ -->
+  <div class="page" id="page-fees">
+    <div class="page-title"><i class="fa fa-rupee-sign"></i> Fee Structure</div>
+    <div class="card">
+      <div class="card-title"><i class="fa fa-plus"></i> Set Monthly Fee by Class</div>
+      <div class="form-grid">
+        <div class="form-group"><label>Class Name</label><input type="text" id="feeClass" placeholder="e.g. Class 5" /></div>
+        <div class="form-group"><label>Monthly Fee (₹)</label><input type="number" id="feeAmount" placeholder="e.g. 1500" /></div>
+        <div class="form-group"><label>Subjects / Notes</label><input type="text" id="feeNotes" placeholder="Maths + Science" /></div>
+      </div>
+      <div class="form-actions">
+        <button class="btn btn-primary" onclick="saveFeeStructure()"><i class="fa fa-save"></i> Save Fee</button>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title"><i class="fa fa-list"></i> Fee Schedule</div>
+      <div class="table-wrap">
+        <table id="feeTable">
+          <thead><tr><th>Class</th><th>Monthly Fee (₹)</th><th>Notes</th><th>Actions</th></tr></thead>
+          <tbody id="feeTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════ REMINDERS PAGE ═══════════════ -->
+  <div class="page" id="page-reminders">
+    <div class="page-title"><i class="fab fa-whatsapp"></i> WhatsApp Reminders</div>
+    <div class="card">
+      <div class="card-title"><i class="fa fa-edit"></i> Message Template</div>
+      <div class="form-group">
+        <label>Reminder Message (use {name}, {amount}, {class})</label>
+        <textarea id="reminderTemplate" rows="4" style="resize:vertical;">Dear Parent of {name} ({class}),
+
+This is a friendly reminder that fee of ₹{amount} is due at New Gurukul. Kindly clear the dues at your earliest. Thank you! 🙏</textarea>
+      </div>
+      <div style="margin-top:10px;display:flex;gap:10px;flex-wrap:wrap;">
+        <button class="btn btn-ghost btn-sm" onclick="resetTemplate()"><i class="fa fa-undo"></i> Reset Template</button>
+      </div>
+    </div>
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:14px;">
+        <div class="card-title" style="margin:0;"><i class="fa fa-exclamation-circle"></i> Students with Dues</div>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+          <div class="form-group" style="margin:0;"><label>Min Due (₹)</label><input type="number" id="minDueFilter" value="1" style="width:90px;" oninput="renderReminders()" /></div>
+          <button class="btn btn-whatsapp btn-sm" onclick="sendAllReminders()"><i class="fab fa-whatsapp"></i> Send All</button>
+        </div>
+      </div>
+      <div id="reminderList"></div>
+    </div>
+  </div>
+
+  <!-- ═══════════════ ATTENDANCE PAGE ═══════════════ -->
+  <div class="page" id="page-attendance">
+    <div class="page-title"><i class="fa fa-clipboard-check"></i> Attendance</div>
+    <div class="card">
+      <div style="display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end;margin-bottom:16px;">
+        <div class="form-group"><label>Date</label><input type="date" id="attDate" /></div>
+        <div class="form-group"><label>Class</label>
+          <select id="attClassFilter" onchange="renderAttendance()">
+            <option value="">All Classes</option>
+          </select></div>
+        <button class="btn btn-primary" onclick="saveAttendance()"><i class="fa fa-save"></i> Save Attendance</button>
+        <button class="btn btn-ghost" onclick="markAllPresent()"><i class="fa fa-check-double"></i> Mark All Present</button>
+        <button class="btn btn-ghost" onclick="markAllAbsent()"><i class="fa fa-times"></i> Mark All Absent</button>
+      </div>
+      <div id="attStats" style="margin-bottom:14px;"></div>
+      <div class="att-grid" id="attGrid"></div>
+    </div>
+    <div class="card">
+      <div class="card-title"><i class="fa fa-history"></i> Attendance History</div>
+      <div class="filter-row">
+        <div class="form-group"><label>Student</label><select id="attHistStudent" style="width:200px;"></select></div>
+        <div class="form-group"><label>From</label><input type="date" id="attHistFrom" /></div>
+        <div class="form-group"><label>To</label><input type="date" id="attHistTo" /></div>
+        <button class="btn btn-primary" onclick="loadAttHistory()" style="align-self:flex-end;"><i class="fa fa-search"></i> Load</button>
+      </div>
+      <div id="attHistResult"></div>
+    </div>
+  </div>
+
+  <!-- ═══════════════ SETTINGS PAGE ═══════════════ -->
+  <div class="page" id="page-settings">
+    <div class="page-title"><i class="fa fa-cog"></i> Settings</div>
+    <div class="card">
+      <div class="card-title"><i class="fa fa-plug"></i> Backend Connection</div>
+      <div class="form-group">
+        <label>Google Apps Script URL</label>
+        <input type="text" id="settingsURL" placeholder="https://script.google.com/macros/s/..." />
+      </div>
+      <div class="form-actions">
+        <button class="btn btn-primary" onclick="saveSettings()"><i class="fa fa-save"></i> Save</button>
+        <button class="btn btn-ghost" onclick="testConnection()"><i class="fa fa-wifi"></i> Test Connection</button>
+      </div>
+      <div id="settingsStatus" style="margin-top:10px;"></div>
+    </div>
+    <div class="card">
+      <div class="card-title"><i class="fa fa-school"></i> Institute Details</div>
+      <div class="form-grid">
+        <div class="form-group"><label>Institute Name</label><input type="text" id="instName" placeholder="New Gurukul" /></div>
+        <div class="form-group"><label>Contact Number</label><input type="text" id="instPhone" placeholder="+91 XXXXX XXXXX" /></div>
+        <div class="form-group"><label>Address</label><input type="text" id="instAddress" placeholder="Full address" /></div>
+        <div class="form-group"><label>Footer Text</label><input type="text" id="instFooter" placeholder="© 2026 Designed by Radhika" /></div>
+      </div>
+      <div class="form-actions">
+        <button class="btn btn-primary" onclick="saveInstDetails()"><i class="fa fa-save"></i> Save</button>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title"><i class="fa fa-database"></i> Data Management</div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;">
+        <button class="btn btn-ghost" onclick="exportAllCSV()"><i class="fa fa-file-csv"></i> Export All Data (CSV)</button>
+        <button class="btn btn-ghost" onclick="refreshData()"><i class="fa fa-sync"></i> Reload from Sheet</button>
+        <button class="btn btn-danger btn-sm" onclick="clearLocalCache()"><i class="fa fa-trash"></i> Clear Local Cache</button>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<!-- ════════ STUDENT MODAL ════════ -->
+<div class="modal-overlay" id="studentModal">
+  <div class="modal">
+    <div class="modal-title" id="studentModalTitle"><i class="fa fa-user-plus"></i> Add Student</div>
+    <div class="form-grid">
+      <div class="form-group"><label>Full Name *</label><input type="text" id="sName" placeholder="Student name" /></div>
+      <div class="form-group"><label>Class *</label><input type="text" id="sClass" placeholder="e.g. Class 5" list="classList" /></div>
+      <div class="form-group"><label>Guardian Name</label><input type="text" id="sGuardian" placeholder="Parent/Guardian" /></div>
+      <div class="form-group"><label>Mobile Number *</label><input type="tel" id="sMobile" placeholder="+91 XXXXX XXXXX" /></div>
+      <div class="form-group"><label>Alternate Number</label><input type="tel" id="sAlt" placeholder="Alternate contact" /></div>
+      <div class="form-group" style="grid-column:1/-1;"><label>Address</label><textarea id="sAddress" rows="2" placeholder="Full address"></textarea></div>
+      <div class="form-group"><label>Monthly Fee (₹)</label><input type="number" id="sFee" placeholder="Override fee for this student" /></div>
+      <div class="form-group"><label>Joining Date</label><input type="date" id="sJoining" /></div>
+    </div>
+    <datalist id="classList"></datalist>
+    <div class="form-actions">
+      <button class="btn btn-primary" onclick="saveStudent()"><i class="fa fa-save"></i> Save</button>
+      <button class="btn btn-ghost" onclick="closeModal('studentModal')"><i class="fa fa-times"></i> Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- ════════ CONFIRM MODAL ════════ -->
+<div class="modal-overlay" id="confirmModal">
+  <div class="modal" style="max-width:360px;">
+    <div class="modal-title"><i class="fa fa-exclamation-triangle" style="color:var(--danger);"></i> Confirm</div>
+    <p id="confirmMsg" style="margin-bottom:20px;color:var(--text-muted);"></p>
+    <div class="form-actions">
+      <button class="btn btn-danger" id="confirmOk">Delete</button>
+      <button class="btn btn-ghost" onclick="closeModal('confirmModal')">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════
+//  CONFIG
+// ═══════════════════════════════════════════════
+let BACKEND_URL = localStorage.getItem('backendURL') || '';
+let students = [];
+let allTransactions = [];
+let attendanceData = {};
+let feeStructure = [];
+let editingStudentIdx = -1;
+
+// ═══════════════════════════════════════════════
+//  INIT
+// ═══════════════════════════════════════════════
+document.addEventListener('DOMContentLoaded', async () => {
+  applyTheme();
+  loadLocalData();
+  setDefaultDates();
+  loadSettings();
+  loadFeeStructure();
+  loadAttendanceData();
+  updateClassDropdowns();
+  renderStudentsTable();
+  renderEntryRows();
+  renderFeeTable();
+  renderReminders();
+  renderAttendance();
+  updateStats();
+
+  // Try to fetch from backend if URL exists
+  if (BACKEND_URL) await refreshData();
+});
+
+function setDefaultDates() {
+  const today = new Date().toISOString().split('T')[0];
+  ['entryDate','attDate'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = today;
+  });
+}
+
+function loadLocalData() {
+  const s = localStorage.getItem('students');
+  const t = localStorage.getItem('transactions');
+  if (s) students = JSON.parse(s);
+  if (t) allTransactions = JSON.parse(t);
+}
+
+function saveLocalData() {
+  localStorage.setItem('students', JSON.stringify(students));
+  localStorage.setItem('transactions', JSON.stringify(allTransactions));
+}
+
+// ═══════════════════════════════════════════════
+//  THEME
+// ═══════════════════════════════════════════════
+function applyTheme() {
+  const t = localStorage.getItem('theme') || 'light';
+  document.documentElement.setAttribute('data-theme', t);
+  document.getElementById('themeIcon').className = t === 'dark' ? 'fa fa-sun' : 'fa fa-moon';
+}
+function toggleTheme() {
+  const cur = document.documentElement.getAttribute('data-theme');
+  const next = cur === 'dark' ? 'light' : 'dark';
+  localStorage.setItem('theme', next);
+  applyTheme();
+}
+
+// ═══════════════════════════════════════════════
+//  NAVIGATION
+// ═══════════════════════════════════════════════
+function showPage(page, el) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('page-' + page).classList.add('active');
+  if (el) el.classList.add('active');
+  closeSidebar();
+  if (page === 'reminders') renderReminders();
+  if (page === 'attendance') renderAttendance();
+  if (page === 'students') renderStudentsTable();
+  if (page === 'fees') renderFeeTable();
+}
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('open');
+  document.getElementById('sidebarOverlay').classList.toggle('open');
+}
+function closeSidebar() {
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('sidebarOverlay').classList.remove('open');
+}
+
+// ═══════════════════════════════════════════════
+//  TOAST
+// ═══════════════════════════════════════════════
+function toast(msg, type='success') {
+  const t = document.getElementById('toast');
+  const m = document.getElementById('toast-msg');
+  m.textContent = msg;
+  t.className = type === 'error' ? 'error show' : 'show';
+  setTimeout(() => t.className = '', 3000);
+}
+
+// ═══════════════════════════════════════════════
+//  MODAL
+// ═══════════════════════════════════════════════
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+// ═══════════════════════════════════════════════
+//  DATA FETCH
+// ═══════════════════════════════════════════════
+async function refreshData() {
+  if (!BACKEND_URL) { toast('No backend URL set. Add it in Settings.', 'error'); return; }
+  const icon = document.getElementById('refreshIcon');
+  icon.className = 'fa fa-spinner fa-spin';
+  try {
+    const [sRes, tRes] = await Promise.all([
+      fetch(`${BACKEND_URL}?action=getStudents`),
+      fetch(`${BACKEND_URL}?action=getTransactions`)
+    ]);
+    const sData = await sRes.json();
+    const tData = await tRes.json();
+
+    if (Array.isArray(sData)) {
+      // Merge: preserve local extra fields (guardian, mobile etc)
+      sData.forEach(remote => {
+        const idx = students.findIndex(s => s.name === remote.name && s.class === remote.class);
+        if (idx === -1) students.push({ name: remote.name, class: remote.class });
+      });
+    }
+    if (Array.isArray(tData)) allTransactions = tData;
+
+    saveLocalData();
+    updateClassDropdowns();
+    renderStudentsTable();
+    renderEntryRows();
+    renderReminders();
+    updateStats();
+    toast('Data refreshed!');
+  } catch(e) {
+    toast('Could not reach backend. Working offline.', 'error');
+  }
+  icon.className = 'fa fa-sync';
+}
+
+// ═══════════════════════════════════════════════
+//  STATS
+// ═══════════════════════════════════════════════
+function updateStats() {
+  document.getElementById('statTotal').textContent = students.length;
+  let totalCredit = 0, totalDue = 0, dueCount = 0;
+  students.forEach(s => {
+    const bal = calcBalance(s.name, s.class);
+    if (bal < 0) { totalDue += Math.abs(bal); dueCount++; }
+    if (bal > 0) totalCredit += bal;
+  });
+  document.getElementById('statDue').textContent = dueCount;
+  document.getElementById('statCredits').textContent = '₹' + totalCredit.toLocaleString('en-IN');
+  document.getElementById('statDues').textContent = '₹' + totalDue.toLocaleString('en-IN');
+}
+
+// ═══════════════════════════════════════════════
+//  BALANCE CALCULATION
+// ═══════════════════════════════════════════════
+function calcBalance(name, cls) {
+  return allTransactions
+    .filter(t => t.name === name && t.class === cls)
+    .reduce((sum, t) => sum + (parseFloat(t.credit) || 0) - (parseFloat(t.debit) || 0), 0);
+}
+
+// ═══════════════════════════════════════════════
+//  ENTRY PAGE
+// ═══════════════════════════════════════════════
+function renderEntryRows() {
+  const container = document.getElementById('entryList');
+  if (!container) return;
+  const search = (document.getElementById('entrySearch')?.value || '').toLowerCase();
+  const classF = document.getElementById('entryClassFilter')?.value || '';
+  container.innerHTML = '';
+  let grandTotal = 0;
+  const filtered = students.filter(s =>
+    (!search || s.name.toLowerCase().includes(search) || (s.class||'').toLowerCase().includes(search)) &&
+    (!classF || s.class === classF)
+  );
+  if (filtered.length === 0) {
+    container.innerHTML = '<div class="empty-state"><i class="fa fa-users"></i><p>No students found. Add students in Student Records.</p></div>';
+    return;
+  }
+  filtered.forEach(s => {
+    const balance = calcBalance(s.name, s.class);
+    grandTotal += balance;
+    const row = document.createElement('div');
+    row.className = 'entry-row';
+    row.dataset.name = s.name;
+    row.dataset.class = s.class;
+    row.innerHTML = `
+      <div><div class="student-name">${s.name}</div><div class="student-class">${s.class || ''}</div></div>
+      <input type="number" placeholder="0" class="debit" min="0" step="0.01" />
+      <input type="number" placeholder="0" class="credit" min="0" step="0.01" />
+      <div class="balance-col ${balance < 0 ? 'balance-neg' : 'balance-pos'}">₹${balance.toLocaleString('en-IN')}</div>
+    `;
+    container.appendChild(row);
+  });
+  document.getElementById('entryTotal').textContent = `Grand Balance: ₹${grandTotal.toLocaleString('en-IN')}`;
+}
+
+function filterEntryRows() { renderEntryRows(); }
+function clearEntryInputs() {
+  document.querySelectorAll('.entry-row input').forEach(i => i.value = '');
+}
+
+async function saveAllEntries() {
+  const date = document.getElementById('entryDate').value;
+  if (!date) return toast('Please select a date.', 'error');
+  const rows = document.querySelectorAll('.entry-row');
+  const entries = [];
+  rows.forEach(row => {
+    const debit = parseFloat(row.querySelector('.debit').value) || 0;
+    const credit = parseFloat(row.querySelector('.credit').value) || 0;
+    if (debit || credit) {
+      entries.push({ date, name: row.dataset.name, class: row.dataset.class, debit, credit });
+    }
+  });
+  if (entries.length === 0) return toast('No entries to save.', 'error');
+
+  // Save locally immediately
+  entries.forEach(e => allTransactions.push(e));
+  saveLocalData();
+  renderEntryRows();
+  updateStats();
+  clearEntryInputs();
+  toast(`${entries.length} entries saved locally!`);
+
+  // Also save to backend if available
+  if (BACKEND_URL) {
+    const btn = document.getElementById('saveAllButton');
+    btn.disabled = true; btn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Saving...';
+    try {
+      const res = await fetch(BACKEND_URL, {
+        method: 'POST',
+        body: JSON.stringify({ action: 'saveTransactionsBatch', payload: entries })
+      });
+      const result = await res.json();
+      if (result.status === 'success') toast(`✅ ${result.saved} entries synced to sheet!`);
+      else toast('Saved locally but sheet sync failed.', 'error');
+    } catch(e) {
+      toast('Saved locally. Sheet sync failed (offline?).', 'error');
+    }
+    btn.disabled = false; btn.innerHTML = '<i class="fa fa-save"></i> Save All Entries';
+  }
+}
+
+// ═══════════════════════════════════════════════
+//  CLASS DROPDOWNS
+// ═══════════════════════════════════════════════
+function updateClassDropdowns() {
+  const classes = [...new Set(students.map(s => s.class).filter(Boolean))].sort();
+  ['entryClassFilter','studentClassFilter','snapClassFilter','attClassFilter'].forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    const val = el.value;
+    el.innerHTML = '<option value="">All Classes</option>';
+    classes.forEach(c => { const o = document.createElement('option'); o.value = c; o.textContent = c; el.appendChild(o); });
+    if (val) el.value = val;
+  });
+  // Dashboard student select
+  const ds = document.getElementById('dashboardStudent');
+  if (ds) {
+    ds.innerHTML = '';
+    students.forEach(s => {
+      const o = document.createElement('option');
+      o.value = `${s.name}|||${s.class}`;
+      o.textContent = `${s.name} (${s.class || 'No class'})`;
+      ds.appendChild(o);
+    });
+  }
+  // Attendance history student select
+  const ah = document.getElementById('attHistStudent');
+  if (ah) {
+    ah.innerHTML = '<option value="">Select student</option>';
+    students.forEach(s => {
+      const o = document.createElement('option');
+      o.value = `${s.name}|||${s.class}`;
+      o.textContent = `${s.name} (${s.class || ''})`;
+      ah.appendChild(o);
+    });
+  }
+  // Datalist for class input in modal
+  const dl = document.getElementById('classList');
+  if (dl) { dl.innerHTML = ''; classes.forEach(c => { const o = document.createElement('option'); o.value = c; dl.appendChild(o); }); }
+}
+
+// ═══════════════════════════════════════════════
+//  STUDENTS
+// ═══════════════════════════════════════════════
+function openStudentModal(idx=-1) {
+  editingStudentIdx = idx;
+  const modal = document.getElementById('studentModal');
+  const title = document.getElementById('studentModalTitle');
+  if (idx === -1) {
+    title.innerHTML = '<i class="fa fa-user-plus"></i> Add Student';
+    ['sName','sClass','sGuardian','sMobile','sAlt','sAddress','sFee','sJoining'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.value = '';
+    });
+  } else {
+    const s = students[idx];
+    title.innerHTML = '<i class="fa fa-user-edit"></i> Edit Student';
+    document.getElementById('sName').value = s.name || '';
+    document.getElementById('sClass').value = s.class || '';
+    document.getElementById('sGuardian').value = s.guardian || '';
+    document.getElementById('sMobile').value = s.mobile || '';
+    document.getElementById('sAlt').value = s.alt || '';
+    document.getElementById('sAddress').value = s.address || '';
+    document.getElementById('sFee').value = s.fee || '';
+    document.getElementById('sJoining').value = s.joining || '';
+  }
+  openModal('studentModal');
+}
+
+async function saveStudent() {
+  const name = document.getElementById('sName').value.trim();
+  const cls = document.getElementById('sClass').value.trim();
+  if (!name || !cls) return toast('Name and Class are required.', 'error');
+  const student = {
+    name, class: cls,
+    guardian: document.getElementById('sGuardian').value.trim(),
+    mobile: document.getElementById('sMobile').value.trim(),
+    alt: document.getElementById('sAlt').value.trim(),
+    address: document.getElementById('sAddress').value.trim(),
+    fee: parseFloat(document.getElementById('sFee').value) || 0,
+    joining: document.getElementById('sJoining').value
+  };
+  if (editingStudentIdx === -1) {
+    if (students.some(s => s.name === name && s.class === cls)) return toast('Student already exists.', 'error');
+    students.push(student);
+    // Sync to backend
+    if (BACKEND_URL) {
+      try {
+        await fetch(BACKEND_URL, {
+          method: 'POST',
+          body: JSON.stringify({ action: 'saveStudent', payload: student })
+        });
+      } catch(e) {}
+    }
+  } else {
+    students[editingStudentIdx] = { ...students[editingStudentIdx], ...student };
+    if (BACKEND_URL) {
+      try {
+        await fetch(BACKEND_URL, {
+          method: 'POST',
+          body: JSON.stringify({ action: 'updateStudent', payload: student })
+        });
+      } catch(e) {}
+    }
+  }
+  saveLocalData();
+  updateClassDropdowns();
+  renderStudentsTable();
+  renderEntryRows();
+  updateStats();
+  closeModal('studentModal');
+  toast(editingStudentIdx === -1 ? 'Student added!' : 'Student updated!');
+}
+
+function confirmDeleteStudent(idx) {
+  const s = students[idx];
+  document.getElementById('confirmMsg').textContent = `Delete ${s.name} (${s.class})? This will not delete their transactions.`;
+  document.getElementById('confirmOk').onclick = () => deleteStudent(idx);
+  openModal('confirmModal');
+}
+
+async function deleteStudent(idx) {
+  const s = students[idx];
+  students.splice(idx, 1);
+  saveLocalData();
+  if (BACKEND_URL) {
+    try {
+      await fetch(BACKEND_URL, {
+        method: 'POST',
+        body: JSON.stringify({ action: 'deleteStudent', payload: { name: s.name, class: s.class } })
+      });
+    } catch(e) {}
+  }
+  updateClassDropdowns();
+  renderStudentsTable();
+  renderEntryRows();
+  updateStats();
+  closeModal('confirmModal');
+  toast('Student deleted.');
+}
+
+function renderStudentsTable() {
+  const search = (document.getElementById('studentSearch')?.value || '').toLowerCase();
+  const classF = document.getElementById('studentClassFilter')?.value || '';
+  const tbody = document.getElementById('studentsTableBody');
+  if (!tbody) return;
+  tbody.innerHTML = '';
+  const filtered = students.filter(s =>
+    (!search || s.name.toLowerCase().includes(search) || (s.class||'').toLowerCase().includes(search) || (s.guardian||'').toLowerCase().includes(search)) &&
+    (!classF || s.class === classF)
+  );
+  if (filtered.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="9"><div class="empty-state"><i class="fa fa-user-graduate"></i><p>No students found.</p></div></td></tr>`;
+    return;
+  }
+  filtered.forEach((s, i) => {
+    const realIdx = students.indexOf(s);
+    const bal = calcBalance(s.name, s.class);
+    const initials = (s.name || 'S').split(' ').map(w=>w[0]).join('').substring(0,2).toUpperCase();
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${i+1}</td>
+      <td><div style="display:flex;align-items:center;gap:8px;">
+        <div class="avatar" style="font-size:0.72rem;width:30px;height:30px;">${initials}</div>
+        <div><div style="font-weight:700;">${s.name}</div>${s.joining?`<div style="font-size:0.72rem;color:var(--text-muted);">Joined: ${s.joining}</div>`:''}</div>
+      </div></td>
+      <td><span class="badge badge-green">${s.class||'—'}</span></td>
+      <td>${s.guardian||'—'}</td>
+      <td>${s.mobile ? `<a href="tel:${s.mobile}" style="color:var(--primary);text-decoration:none;">${s.mobile}</a>` : '—'}</td>
+      <td>${s.alt||'—'}</td>
+      <td style="max-width:140px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="${s.address||''}">${s.address||'—'}</td>
+      <td><span class="${bal < 0 ? 'balance-neg' : 'balance-pos'}">₹${bal.toLocaleString('en-IN')}</span></td>
+      <td>
+        <div style="display:flex;gap:5px;">
+          <button class="btn btn-ghost btn-sm" onclick="openStudentModal(${realIdx})"><i class="fa fa-edit"></i></button>
+          ${s.mobile ? `<button class="btn btn-whatsapp btn-sm" onclick="sendWA('${s.mobile}','${s.name}','${s.class}',${Math.abs(bal)})"><i class="fab fa-whatsapp"></i></button>` : ''}
+          <button class="btn btn-danger btn-sm" onclick="confirmDeleteStudent(${realIdx})"><i class="fa fa-trash"></i></button>
+        </div>
+      </td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+// ═══════════════════════════════════════════════
+//  DASHBOARD
+// ═══════════════════════════════════════════════
+async function loadDashboard() {
+  const val = document.getElementById('dashboardStudent').value;
+  if (!val) return toast('Please select a student.', 'error');
+  const [name, cls] = val.split('|||');
+  const from = document.getElementById('fromDate').value;
+  const to = document.getElementById('toDate').value;
+
+  const filtered = allTransactions
+    .filter(t => t.name === name && t.class === cls)
+    .filter(t => (!from || t.date >= from) && (!to || t.date <= to))
+    .sort((a,b) => new Date(a.date) - new Date(b.date));
+
+  const tbody = document.querySelector('#transactionTable tbody');
+  tbody.innerHTML = '';
+  let runBal = 0;
+  filtered.forEach(tx => {
+    const d = parseFloat(tx.debit)||0, c = parseFloat(tx.credit)||0;
+    runBal += c - d;
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${formatDate(tx.date)}</td>
+      <td class="balance-neg">${d ? '₹'+d.toLocaleString('en-IN') : '—'}</td>
+      <td class="balance-pos">${c ? '₹'+c.toLocaleString('en-IN') : '—'}</td>
+      <td class="${runBal<0?'balance-neg':'balance-pos'}">₹${runBal.toLocaleString('en-IN')}</td>`;
+    tbody.appendChild(tr);
+  });
+
+  const totalBal = calcBalance(name, cls);
+  const s = students.find(s => s.name === name && s.class === cls) || {};
+  document.getElementById('dashboardSummary').innerHTML = `
+    <div class="stats-grid">
+      <div class="stat-card"><div class="stat-label">Student</div><div class="stat-value" style="font-size:1.1rem;">${name}</div><div class="stat-sub">${cls}</div></div>
+      <div class="stat-card"><div class="stat-label">Transactions</div><div class="stat-value">${filtered.length}</div></div>
+      <div class="stat-card ${runBal<0?'danger':''}"><div class="stat-label">Range Balance</div><div class="stat-value">₹${runBal.toLocaleString('en-IN')}</div></div>
+      <div class="stat-card ${totalBal<0?'danger':''}"><div class="stat-label">Total Balance</div><div class="stat-value">₹${totalBal.toLocaleString('en-IN')}</div></div>
+    </div>
+    ${s.guardian ? `<div style="font-size:0.85rem;color:var(--text-muted);margin-top:4px;">Guardian: <b>${s.guardian}</b> | Mobile: <b>${s.mobile||'—'}</b></div>` : ''}`;
+  document.getElementById('tableBalanceTotal').innerHTML =
+    `<span class="${totalBal<0?'balance-neg':'balance-pos'}">Total Balance: ₹${totalBal.toLocaleString('en-IN')}</span>`;
+  document.getElementById('dashboardTableCard').style.display = 'block';
+}
+
+function clearDashboard() {
+  document.getElementById('dashboardSummary').innerHTML = '';
+  document.getElementById('dashboardTableCard').style.display = 'none';
+}
+
+async function exportDashboardPDF() {
+  const val = document.getElementById('dashboardStudent').value;
+  if (!val) return;
+  const [name] = val.split('|||');
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+  const inst = localStorage.getItem('instName') || 'New Gurukul';
+  doc.setFontSize(16); doc.text(inst, 14, 16);
+  doc.setFontSize(11); doc.text(`Transaction Report — ${name}`, 14, 25);
+  doc.autoTable({ html: '#transactionTable', startY: 32, styles: { fontSize: 9 } });
+  doc.save(`${name}_transactions.pdf`);
+}
+
+function shareViaWhatsApp() {
+  const val = document.getElementById('dashboardStudent').value;
+  if (!val) return;
+  const [name, cls] = val.split('|||');
+  const bal = calcBalance(name, cls);
+  const s = students.find(s => s.name === name && s.class === cls);
+  if (s?.mobile) sendWA(s.mobile, name, cls, Math.abs(bal));
+  else toast('No mobile number for this student.', 'error');
+}
+
+// ═══════════════════════════════════════════════
+//  SNAPSHOT
+// ═══════════════════════════════════════════════
+async function loadSnapshot() {
+  const from = document.getElementById('snapFrom').value;
+  const to = document.getElementById('snapTo').value || from;
+  if (!from) return toast('Please select a date.', 'error');
+  const balF = document.getElementById('balanceFilter').value;
+  const classF = document.getElementById('snapClassFilter').value;
+
+  let data = allTransactions.filter(t => t.date >= from && t.date <= to);
+  if (classF) data = data.filter(t => t.class === classF);
+
+  // Group by date+student
+  const snap = {};
+  data.forEach(row => {
+    const key = `${row.date}__${row.name}`;
+    if (!snap[key]) snap[key] = { date:row.date, name:row.name, class:row.class, debit:0, credit:0 };
+    snap[key].debit += parseFloat(row.debit)||0;
+    snap[key].credit += parseFloat(row.credit)||0;
+  });
+  let rows = Object.values(snap).sort((a,b) => new Date(a.date)-new Date(b.date));
+  if (balF === 'credit') rows = rows.filter(r => r.credit > r.debit);
+  if (balF === 'debit') rows = rows.filter(r => r.debit > r.credit);
+
+  const totalDebit = rows.reduce((s,r)=>s+r.debit,0);
+  const totalCredit = rows.reduce((s,r)=>s+r.credit,0);
+  document.getElementById('snapStats').innerHTML = `
+    <div class="stats-grid">
+      <div class="stat-card"><div class="stat-label">Records</div><div class="stat-value">${rows.length}</div></div>
+      <div class="stat-card danger"><div class="stat-label">Total Debit</div><div class="stat-value">₹${totalDebit.toLocaleString('en-IN')}</div></div>
+      <div class="stat-card"><div class="stat-label">Total Credit</div><div class="stat-value">₹${totalCredit.toLocaleString('en-IN')}</div></div>
+      <div class="stat-card"><div class="stat-label">Net</div><div class="stat-value">₹${(totalCredit-totalDebit).toLocaleString('en-IN')}</div></div>
+    </div>`;
+  const tbody = document.querySelector('#snapshotTable tbody');
+  tbody.innerHTML = '';
+  if (rows.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="6"><div class="empty-state"><i class="fa fa-calendar-times"></i><p>No records for this period.</p></div></td></tr>';
+    return;
+  }
+  rows.forEach(row => {
+    const net = row.credit - row.debit;
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${formatDate(row.date)}</td>
+      <td style="font-weight:700;">${row.name}</td>
+      <td>${row.class||'—'}</td>
+      <td class="balance-neg">${row.debit ? '₹'+row.debit.toLocaleString('en-IN') : '—'}</td>
+      <td class="balance-pos">${row.credit ? '₹'+row.credit.toLocaleString('en-IN') : '—'}</td>
+      <td class="${net<0?'balance-neg':'balance-pos'}">₹${net.toLocaleString('en-IN')}</td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+function exportSnapshotPDF() {
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+  const inst = localStorage.getItem('instName') || 'New Gurukul';
+  doc.setFontSize(16); doc.text(inst, 14, 16);
+  doc.setFontSize(11); doc.text('Daily Snapshot Report', 14, 25);
+  doc.autoTable({ html: '#snapshotTable', startY: 32, styles: { fontSize: 8 } });
+  doc.save('snapshot_report.pdf');
+}
+
+// ═══════════════════════════════════════════════
+//  FEE STRUCTURE
+// ═══════════════════════════════════════════════
+function loadFeeStructure() {
+  const saved = localStorage.getItem('feeStructure');
+  feeStructure = saved ? JSON.parse(saved) : [];
+}
+function saveFeeStructure() {
+  const cls = document.getElementById('feeClass').value.trim();
+  const amt = parseFloat(document.getElementById('feeAmount').value) || 0;
+  const notes = document.getElementById('feeNotes').value.trim();
+  if (!cls || !amt) return toast('Class and amount required.', 'error');
+  const idx = feeStructure.findIndex(f => f.class === cls);
+  if (idx !== -1) feeStructure[idx] = { class:cls, amount:amt, notes };
+  else feeStructure.push({ class:cls, amount:amt, notes });
+  localStorage.setItem('feeStructure', JSON.stringify(feeStructure));
+  renderFeeTable();
+  document.getElementById('feeClass').value = '';
+  document.getElementById('feeAmount').value = '';
+  document.getElementById('feeNotes').value = '';
+  toast('Fee structure saved!');
+}
+function renderFeeTable() {
+  const tbody = document.getElementById('feeTableBody');
+  if (!tbody) return;
+  tbody.innerHTML = '';
+  if (feeStructure.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="4"><div class="empty-state"><i class="fa fa-rupee-sign"></i><p>No fee structure set yet.</p></div></td></tr>';
+    return;
+  }
+  feeStructure.forEach((f,i) => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td><span class="fee-badge">${f.class}</span></td><td>₹${f.amount.toLocaleString('en-IN')}</td><td>${f.notes||'—'}</td>
+      <td><button class="btn btn-danger btn-sm" onclick="deleteFee(${i})"><i class="fa fa-trash"></i></button></td>`;
+    tbody.appendChild(tr);
+  });
+}
+function deleteFee(i) { feeStructure.splice(i,1); localStorage.setItem('feeStructure',JSON.stringify(feeStructure)); renderFeeTable(); }
+
+// ═══════════════════════════════════════════════
+//  WHATSAPP REMINDERS
+// ═══════════════════════════════════════════════
+const DEFAULT_TEMPLATE = `Dear Parent of {name} ({class}),\n\nThis is a friendly reminder that fee of ₹{amount} is due at New Gurukul. Kindly clear the dues at your earliest. Thank you! 🙏`;
+function resetTemplate() { document.getElementById('reminderTemplate').value = DEFAULT_TEMPLATE; }
+
+function renderReminders() {
+  const minDue = parseFloat(document.getElementById('minDueFilter')?.value) || 1;
+  const list = document.getElementById('reminderList');
+  if (!list) return;
+  const dueStudents = students
+    .map(s => ({ ...s, balance: calcBalance(s.name, s.class) }))
+    .filter(s => s.balance < 0 && Math.abs(s.balance) >= minDue)
+    .sort((a,b) => a.balance - b.balance);
+  if (dueStudents.length === 0) {
+    list.innerHTML = '<div class="empty-state"><i class="fa fa-check-circle" style="color:var(--success);"></i><p>All students are up-to-date! 🎉</p></div>';
+    return;
+  }
+  list.innerHTML = '';
+  dueStudents.forEach(s => {
+    const row = document.createElement('div');
+    row.className = 'reminder-row';
+    row.innerHTML = `
+      <div class="reminder-info">
+        <div class="reminder-name">${s.name}</div>
+        <div class="reminder-meta">${s.class||''} ${s.guardian?'| Guardian: '+s.guardian:''}</div>
+        ${s.mobile ? `<div class="reminder-meta"><i class="fa fa-phone"></i> ${s.mobile}</div>` : '<div class="reminder-meta" style="color:var(--danger);">No mobile number</div>'}
+      </div>
+      <div style="text-align:right;">
+        <div class="reminder-amount">Due: ₹${Math.abs(s.balance).toLocaleString('en-IN')}</div>
+        ${s.mobile ? `<button class="btn btn-whatsapp btn-sm" onclick="sendWA('${s.mobile}','${s.name}','${s.class||''}',${Math.abs(s.balance)})" style="margin-top:6px;">
+          <i class="fab fa-whatsapp"></i> Send
+        </button>` : `<button class="btn btn-ghost btn-sm" style="margin-top:6px;" onclick="openStudentModal(${students.indexOf(s)})"><i class="fa fa-edit"></i> Add Number</button>`}
+      </div>`;
+    list.appendChild(row);
+  });
+}
+
+function sendWA(mobile, name, cls, amount) {
+  const tmpl = document.getElementById('reminderTemplate')?.value || DEFAULT_TEMPLATE;
+  const msg = tmpl.replace('{name}', name).replace('{class}', cls).replace('{amount}', amount.toLocaleString('en-IN'));
+  const clean = mobile.replace(/\D/g,'');
+  const num = clean.startsWith('91') ? clean : '91' + clean;
+  window.open(`https://wa.me/${num}?text=${encodeURIComponent(msg)}`, '_blank');
+}
+
+function sendAllReminders() {
+  const minDue = parseFloat(document.getElementById('minDueFilter').value) || 1;
+  const dueStudents = students
+    .map(s => ({ ...s, balance: calcBalance(s.name, s.class) }))
+    .filter(s => s.balance < 0 && Math.abs(s.balance) >= minDue && s.mobile);
+  if (dueStudents.length === 0) return toast('No students with mobile numbers found.', 'error');
+  dueStudents.forEach((s,i) => {
+    setTimeout(() => sendWA(s.mobile, s.name, s.class||'', Math.abs(s.balance)), i * 400);
+  });
+  toast(`Opening WhatsApp for ${dueStudents.length} students...`);
+}
+
+// ═══════════════════════════════════════════════
+//  ATTENDANCE
+// ═══════════════════════════════════════════════
+function loadAttendanceData() {
+  const saved = localStorage.getItem('attendance');
+  attendanceData = saved ? JSON.parse(saved) : {};
+}
+function saveAttendanceData() { localStorage.setItem('attendance', JSON.stringify(attendanceData)); }
+
+function renderAttendance() {
+  const date = document.getElementById('attDate')?.value;
+  const classF = document.getElementById('attClassFilter')?.value || '';
+  const grid = document.getElementById('attGrid');
+  if (!grid) return;
+  grid.innerHTML = '';
+  const filtered = students.filter(s => !classF || s.class === classF);
+  if (filtered.length === 0) {
+    grid.innerHTML = '<div class="empty-state" style="grid-column:1/-1;"><i class="fa fa-users"></i><p>No students. Add students first.</p></div>';
+    return;
+  }
+  let present = 0;
+  filtered.forEach(s => {
+    const key = `${date}__${s.name}__${s.class}`;
+    const status = attendanceData[key] || 'present';
+    if (status === 'present') present++;
+    const card = document.createElement('div');
+    card.className = `att-card ${status}`;
+    card.dataset.key = key;
+    card.innerHTML = `
+      <div class="att-name">${s.name}</div>
+      <div class="att-class">${s.class||''}</div>
+      <div class="att-status">${status === 'present' ? '✓ Present' : '✗ Absent'}</div>`;
+    card.onclick = () => toggleAttendance(card, key);
+    grid.appendChild(card);
+  });
+  const attStats = document.getElementById('attStats');
+  attStats.innerHTML = `
+    <div class="stats-grid">
+      <div class="stat-card"><div class="stat-label">Total</div><div class="stat-value">${filtered.length}</div></div>
+      <div class="stat-card"><div class="stat-label">Present</div><div class="stat-value" style="color:var(--success);">${present}</div></div>
+      <div class="stat-card danger"><div class="stat-label">Absent</div><div class="stat-value">${filtered.length-present}</div></div>
+    </div>`;
+}
+
+function toggleAttendance(card, key) {
+  const cur = attendanceData[key] || 'present';
+  attendanceData[key] = cur === 'present' ? 'absent' : 'present';
+  card.classList.remove('present','absent');
+  card.classList.add(attendanceData[key]);
+  card.querySelector('.att-status').textContent = attendanceData[key] === 'present' ? '✓ Present' : '✗ Absent';
+  // Update stats
+  const date = document.getElementById('attDate')?.value;
+  const classF = document.getElementById('attClassFilter')?.value || '';
+  const filtered = students.filter(s => !classF || s.class === classF);
+  let present = 0;
+  filtered.forEach(s => {
+    const k = `${date}__${s.name}__${s.class}`;
+    if ((attendanceData[k] || 'present') === 'present') present++;
+  });
+  document.querySelector('#attStats .stats-grid').children[1].querySelector('.stat-value').textContent = present;
+  document.querySelector('#attStats .stats-grid').children[2].querySelector('.stat-value').textContent = filtered.length - present;
+}
+
+function saveAttendance() { saveAttendanceData(); toast('Attendance saved!'); }
+function markAllPresent() {
+  const date = document.getElementById('attDate')?.value;
+  const classF = document.getElementById('attClassFilter')?.value || '';
+  students.filter(s => !classF || s.class === classF).forEach(s => {
+    attendanceData[`${date}__${s.name}__${s.class}`] = 'present';
+  });
+  renderAttendance();
+}
+function markAllAbsent() {
+  const date = document.getElementById('attDate')?.value;
+  const classF = document.getElementById('attClassFilter')?.value || '';
+  students.filter(s => !classF || s.class === classF).forEach(s => {
+    attendanceData[`${date}__${s.name}__${s.class}`] = 'absent';
+  });
+  renderAttendance();
+}
+
+function loadAttHistory() {
+  const val = document.getElementById('attHistStudent').value;
+  const from = document.getElementById('attHistFrom').value;
+  const to = document.getElementById('attHistTo').value;
+  if (!val) return toast('Select a student.', 'error');
+  const [name, cls] = val.split('|||');
+  const result = document.getElementById('attHistResult');
+  const entries = Object.entries(attendanceData)
+    .filter(([k]) => k.includes(`__${name}__${cls}`))
+    .map(([k,v]) => ({ date: k.split('__')[0], status: v }))
+    .filter(e => (!from || e.date >= from) && (!to || e.date <= to))
+    .sort((a,b) => new Date(a.date)-new Date(b.date));
+  if (entries.length === 0) { result.innerHTML = '<div class="empty-state"><i class="fa fa-calendar"></i><p>No records found.</p></div>'; return; }
+  const present = entries.filter(e=>e.status==='present').length;
+  result.innerHTML = `
+    <div style="margin-bottom:12px;font-weight:700;">
+      ${name}: <span style="color:var(--success);">${present} Present</span> / <span style="color:var(--danger);">${entries.length-present} Absent</span> 
+      <span style="color:var(--text-muted);">(${Math.round(present/entries.length*100)}% attendance)</span>
+    </div>
+    <div style="display:flex;flex-wrap:wrap;gap:6px;">
+      ${entries.map(e=>`<span class="badge ${e.status==='present'?'badge-green':'badge-red'}">${formatDate(e.date)}: ${e.status}</span>`).join('')}
+    </div>`;
+}
+
+// ═══════════════════════════════════════════════
+//  SETTINGS
+// ═══════════════════════════════════════════════
+function loadSettings() {
+  const url = localStorage.getItem('backendURL') || '';
+  const el = document.getElementById('settingsURL');
+  if (el) el.value = url;
+  const instN = document.getElementById('instName');
+  const instP = document.getElementById('instPhone');
+  const instA = document.getElementById('instAddress');
+  const instF = document.getElementById('instFooter');
+  if (instN) instN.value = localStorage.getItem('instName') || 'New Gurukul';
+  if (instP) instP.value = localStorage.getItem('instPhone') || '';
+  if (instA) instA.value = localStorage.getItem('instAddress') || '';
+  if (instF) instF.value = localStorage.getItem('instFooter') || '© 2026 Designed by Radhika';
+}
+function saveSettings() {
+  const url = document.getElementById('settingsURL').value.trim();
+  BACKEND_URL = url;
+  localStorage.setItem('backendURL', url);
+  toast('Settings saved!');
+}
+async function testConnection() {
+  if (!BACKEND_URL) return toast('Enter a URL first.', 'error');
+  const el = document.getElementById('settingsStatus');
+  el.innerHTML = '<span style="color:var(--text-muted);">Testing...</span>';
+  try {
+    const res = await fetch(`${BACKEND_URL}?action=getStudents`);
+    const data = await res.json();
+    el.innerHTML = `<div class="alert alert-success"><i class="fa fa-check-circle"></i> Connected! Found ${Array.isArray(data)?data.length:0} students.</div>`;
+  } catch(e) {
+    el.innerHTML = '<div class="alert alert-danger"><i class="fa fa-exclamation-circle"></i> Connection failed. Check your URL.</div>';
+  }
+}
+function saveInstDetails() {
+  localStorage.setItem('instName', document.getElementById('instName').value);
+  localStorage.setItem('instPhone', document.getElementById('instPhone').value);
+  localStorage.setItem('instAddress', document.getElementById('instAddress').value);
+  localStorage.setItem('instFooter', document.getElementById('instFooter').value);
+  toast('Institute details saved!');
+}
+function clearLocalCache() {
+  if (!confirm('Clear all local data? This cannot be undone.')) return;
+  ['students','transactions','feeStructure','attendance'].forEach(k => localStorage.removeItem(k));
+  students = []; allTransactions = []; feeStructure = []; attendanceData = {};
+  renderStudentsTable(); renderEntryRows(); renderFeeTable(); updateStats();
+  toast('Cache cleared.');
+}
+
+// ═══════════════════════════════════════════════
+//  CSV EXPORT
+// ═══════════════════════════════════════════════
+function exportAllCSV() {
+  let csv = 'Name,Class,Guardian,Mobile,Alt,Address,Balance\n';
+  students.forEach(s => {
+    const bal = calcBalance(s.name, s.class);
+    csv += `"${s.name}","${s.class||''}","${s.guardian||''}","${s.mobile||''}","${s.alt||''}","${s.address||''}","${bal}"\n`;
+  });
+  const a = document.createElement('a');
+  a.href = 'data:text/csv,' + encodeURIComponent(csv);
+  a.download = 'gurukul_students.csv';
+  a.click();
+}
+
+// ═══════════════════════════════════════════════
+//  UTILS
+// ═══════════════════════════════════════════════
+function formatDate(dateStr) {
+  if (!dateStr) return '—';
+  const [y,m,d] = dateStr.split('-');
+  return `${d}-${m}-${y}`;
+}
+</script>
 </body>
 </html>
