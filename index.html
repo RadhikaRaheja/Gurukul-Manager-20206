@@ -582,9 +582,11 @@ function renderEntry() {
   const cls=document.getElementById('entryClass')?.value||'';
   const list=document.getElementById('entryList'); if(!list) return;
   list.innerHTML=''; let grand=0;
-  const filtered=students.filter(s=>
-    (!srch||s.name.toLowerCase().includes(srch)||(s.studentId||'').toLowerCase().includes(srch))&&
-    (!cls||s.class===cls));
+  const filtered=students
+    .filter(s=>
+      (!srch||s.name.toLowerCase().includes(srch)||(s.studentId||'').toLowerCase().includes(srch))&&
+      (!cls||s.class===cls))
+    .sort((a,b)=>a.name.localeCompare(b.name,'en',{sensitivity:'base'}));
   if(!filtered.length){
     list.innerHTML='<div class="empty"><i class="fa fa-users"></i>No students. Add them in Student Records.</div>'; return;
   }
