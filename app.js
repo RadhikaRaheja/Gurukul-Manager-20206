@@ -81,7 +81,6 @@ function calculateBalance(name, cls) {
   const txs = allTransactions.filter(t => t.name === name && t.class === cls);
   return txs.reduce((sum, tx) => sum + (tx.credit - tx.debit), 0);
 }
-console.log("Entries to save:", entries.length, entries);
 async function saveAllEntries() {
   const date = document.getElementById('entryDate').value;
   if (!date) return alert('Please select a date.');
@@ -114,7 +113,8 @@ async function saveAllEntries() {
       })
     });
     const result = await res.json();
-    document.getElementById('entryStatus').textContent = `✅ ${result.saved} entries saved!`;
+    const savedCount = Number.isFinite(result?.saved) ? result.saved : entries.length;
+    document.getElementById('entryStatus').textContent = `✅ ${savedCount} entries saved!`;
   } catch (err) {
     alert('Error saving entries. Please try again.');
     console.error(err);
